@@ -47,26 +47,46 @@
     <form id="form" action="">
       <div class="container">
         <label for="uname"><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" id="uname" name="uname" required>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          id="uname"
+          name="uname"
+          required
+        />
         <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" id="psw" name="psw" required>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          id="psw"
+          name="psw"
+          required
+        />
         <button type="submit">Login</button>
       </div>
     </form>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io();
+      var socket = io("http://localhost:3000", { autoConnect: false });
       var form = document.getElementById("form");
       var username = document.getElementById("uname");
       var password = document.getElementById("psw");
-  
+
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         if (username.value && password.value) {
-          socket.emit('logininfo', username.value + "/" + password.value);          
+          socket.connect();
+          socket.emit("logininfo", username.value + "/" + password.value);
         }
       });
-      
+
+      socket.on("loggedin", (sessionid) => {
+        const Http = new XMLHttpRequest();
+        const url = "/private?sessionid="+sessionid;
+        Http.open("GET", url);
+        Http.send();
+        //window.location.replace("/private");
+      });
     </script>
   </body>
 </html>
