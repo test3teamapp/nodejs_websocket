@@ -1,21 +1,10 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const UserSchema = new mongoose.Schema(
-  {
-    username: String,
-    password: String,
-  },
-  {
-    // Assign a function to the "query" object of our animalSchema through schema options.
-    // By following this approach, there is no need to create a separate TS type to define the type of the query functions.
-    query: {
-      byName(name) {
-        return this.where({ username: new RegExp(name, "i") });
-      },
-    },
-  }
-);
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
 
 UserSchema.pre("save", function (next) {
   const user = this;

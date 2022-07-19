@@ -2,27 +2,27 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const server = http.createServer(app);
-
-const crypto = require("crypto");
 // function alias
 const randomId = () => crypto.randomBytes(8).toString("hex");
 
 // templates for views
 const pug = require("pug");
 
-
 const io = require("socket.io")(server, {
   cors: {
     origin: "http://localhost:3000",
-  }
+  },
 });
 
-const mongoose = require('mongoose');
-main().catch(err => console.log(err));
+const mongoose = require("mongoose");
+const UserModel = require("../models/user.js");
+const SessionModel = require("../models/session.js");
+
+main().catch((err) => console.log(err));
 
 async function main() {
   console.log("Hello world");
-  await mongoose.connect('mongodb://localhost:27017/webchatroom');
+  await mongoose.connect("mongodb://localhost:27017/webchatroom");
 }
 
 if (require.main === module) {
@@ -59,28 +59,6 @@ app
   .post(function (req, res, next) {
     // maybe add a new event...
   });
-/*
-app.get("/private", (req, res) => {
-  //res.send('<h1>Hello world</h1>');
-  const sessionID = socket.handshake.auth.sessionID;
-  if (sessionID) {
-    // find existing session
-    const session = sessionStore.findSession(sessionID);
-    if (session) {
-      console.log("found session");
-      socket.sessionID = sessionID;
-      socket.userID = session.userID;
-      socket.username = session.username;
-      res.sendFile(__dirname + "/views/index.html");
-    } else {
-      res.sendFile(__dirname + "/views/login.html");
-    }
-  } else {
-    // no session found. send to login page
-    res.sendFile(__dirname + "/views/login.html");
-  }
-});
-*/
 
 io.on("connection", (socket) => {
   console.log("a socket connected : " + socket.id);
@@ -109,12 +87,40 @@ io.on("connection", (socket) => {
 
     // TODO CHECK USERNAME
 
+    UserModel.find({ username: username }).exec((err, user) => {
+      if (err) {
+        console.log("Error while searching for existing user: " + err);
+        return next(new Error("db error"));
+      } else {
+        if (user.comparePassword(password,function (error, isMatch) {
+          if (error) {
+            console.log("Error when checking password");
+            return next(new Error("db error"));
+          } else {
+            if (isMatch){
+              console.log("Username/Password ok");
+            }else {
+              console.log("Username/Password missmatch");
+              return next(new Error("Username/Password missmatch"));
+            }            
+          }
+        })) 
+      }
+    });
+
     // create new session
     socket.sessionID = randomId();
     socket.userID = randomId();
     socket.username = username;
     // persist session
-    
+    const sess = new SessionModel({
+      username: username,
+      sessionid: socket.sessionID,
+    });
+    sess.save(function (err) {
+      if (err) return handleError(err);
+      // saved!
+    });
 
     socket.emit("loggedin", socket.handshake.auth.sessionID);
   });

@@ -23,8 +23,8 @@ function createANewUser(username, password, callback) {
 main().catch((err) => console.log(err));
 
 async function main() {
-  const uname = "cang";
-  const pass = "Olatalefta2U";
+  //const uname 
+  //const pass 
 
   console.log("Creating user " + uname );
   await mongoose.connect("mongodb://localhost:27017/webchatroom");
