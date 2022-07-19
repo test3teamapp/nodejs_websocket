@@ -13,9 +13,9 @@ function createANewUser(username, password, callback) {
 
   newUserDbDocument.save(function (error) {
     if (error) {
-      callback({ error: true });
+      callback(error);
     } else {
-      callback({ error: false });
+      callback();
     }
   });
 }
@@ -31,24 +31,26 @@ async function main() {
 
   // if user exists ...
 
-  UserModel.find.byName(uname).exec((err, users) => {
+  UserModel.exists({ username: uname }).exec((err, user) => {
     if (err){
-        console.log("Error while searching for users: " + err );
+        console.log("Error while searching for existing user: " + err );
     }else {
-        console.log("I found existing users by that name: " + users);
-    }
-
-  });
-
-  createANewUser(uname, pass, function (error) {
-    if (error) {
-      console.log("failed");
-    } else {
-      console.log("done");
+	if (user){ // if not found is null
+          console.log("Abort: I found existing user by that name: ");
+	}else {
+	  console.log("Did not find user by that name. Creating...");
+	  createANewUser(uname, pass, function (error) {
+    	    if (error) {
+              console.log("failed : " + error);
+            } else {
+              console.log("done");
+    	    }
+  	  });
+	}
     }
   });
 }
 
-if (require.main === module) {
-  main();
-}
+//if (require.main === module) {
+//  main();
+//}
