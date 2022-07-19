@@ -15,7 +15,7 @@ function createANewUser(username, password, callback) {
     if (error) {
       callback({ error: true });
     } else {
-      callback({ success: true });
+      callback({ error: false });
     }
   });
 }
@@ -23,10 +23,24 @@ function createANewUser(username, password, callback) {
 main().catch((err) => console.log(err));
 
 async function main() {
-  console.log("Creating user");
+  const uname = "cang";
+  const pass = "Olatalefta2U";
+
+  console.log("Creating user " + uname );
   await mongoose.connect("mongodb://localhost:27017/webchatroom");
 
-  createANewUser("cang", "olatalefta", function (error, success) {
+  // if user exists ...
+
+  UserModel.find.byName(uname).exec((err, users) => {
+    if (err){
+        console.log("Error while searching for users: " + err );
+    }else {
+        console.log("I found existing users by that name: " + users);
+    }
+
+  });
+
+  createANewUser(uname, pass, function (error) {
     if (error) {
       console.log("failed");
     } else {
