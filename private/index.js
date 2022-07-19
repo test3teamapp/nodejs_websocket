@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
         console.log("Error while searching for existing user: " + err);
         return next(new Error("db error"));
       } else {
-        if (user.comparePassword(password,function (error, isMatch) {
+        user.comparePassword(password,function (error, isMatch) {
           if (error) {
             console.log("Error when checking password");
             return next(new Error("db error"));
@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
               return next(new Error("Username/Password missmatch"));
             }            
           }
-        })) 
+        }) 
       }
     });
 
