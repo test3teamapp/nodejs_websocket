@@ -44,20 +44,24 @@ app
     const sessionID = req.query.sessionid;
     if (sessionID) {
       // find existing session
-      const session = sessionStore.findSession(sessionID);
-      if (session) {
-        console.log("found session");
-        res.sendFile(__dirname + "/views/index.html");
-      } else {
-        console.log("did not find session");
-        res.sendFile(__dirname + "/login.html");
-      }
-    } else {
-      // no session found. send to login page
-      console.log("session id not valid");
-      res.sendFile(__dirname + "/login.html");
+      SessionModel.findOne({ username: username }).lean().exec((err, session) => {
+        if (err) {
+          console.log("Error while searching for existing session: " + err);
+          return new Error("db error");
+        } else if (session != null) {
+          console.log(session.username + " / " + session.sessionid);
+
+          console.log("found session");
+          res.sendFile(__dirname + "/views/index.html");
+        } else {
+          console.log("did not find session");
+          res.sendFile(__dirname + "/login.html");
+        }
+
+      })
     }
   })
+
   .post(function (req, res, next) {
     // maybe add a new event...
   });
@@ -93,8 +97,8 @@ io.on("connection", (socket) => {
       if (err) {
         console.log("Error while searching for existing user: " + err);
         return new Error("db error");
-      } else if (user != null){
-        console.log(user.username + " / " + user.password);
+      } else if (user != null) {
+        //console.log(user.username + " / " + user.password);
         var possibleUser = new UserModel({
           username: user.username,
           password: user.password
