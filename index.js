@@ -52,7 +52,7 @@ app
           console.log(session.username + " / " + session.sessionid);
 
           console.log("found session");
-          res.sendFile(__dirname + "/views/index.html");
+          res.sendFile(__dirname + "/private/index.html");
         } else {
           console.log("did not find session");
           res.sendFile(__dirname + "/login.html");
