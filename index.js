@@ -94,6 +94,7 @@ io.on("connection", (socket) => {
         console.log("Error while searching for existing user: " + err);
         return new Error("db error");
       } else {
+        console.log(user);
         var possibleUser = new UserModel(user);
         possibleUser.comparePassword(password, function (error, isMatch) {
           if (error != null) {
