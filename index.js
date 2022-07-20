@@ -42,9 +42,9 @@ app
   .route("/private")
   .get(function (req, res, next) {
     const sessionID = req.query.sessionid;
-    if (sessionID) {
+    if (sessionID != null) {
       // find existing session
-      SessionModel.findOne({ username: username }).lean().exec((err, session) => {
+      SessionModel.findOne({ sessionid: sessionID }).lean().exec((err, session) => {
         if (err) {
           console.log("Error while searching for existing session: " + err);
           return new Error("db error");
@@ -59,6 +59,9 @@ app
         }
 
       })
+    } else {
+      console.log("unathorised access");
+      res.sendFile(__dirname + "/login.html");
     }
   })
 
@@ -124,7 +127,7 @@ io.on("connection", (socket) => {
                 // saved!
               });
 
-              socket.emit("loggedin", socket.handshake.auth.sessionID);
+              socket.emit("loggedin", socket.sessionID);
             } else {
               console.log("Username/Password missmatch");
               return new Error("Username/Password missmatch");
