@@ -94,7 +94,7 @@ io.on("connection", (socket) => {
         console.log("Error while searching for existing user: " + err);
         return new Error("db error");
       } else {
-        console.log(user);
+        console.log(user.username + " / " + user.password);
         var possibleUser = new UserModel({
           username: user.username,
           password: user.password
