@@ -93,7 +93,7 @@ io.on("connection", (socket) => {
       if (err) {
         console.log("Error while searching for existing user: " + err);
         return new Error("db error");
-      } else {
+      } else if (user != null){
         console.log(user.username + " / " + user.password);
         var possibleUser = new UserModel({
           username: user.username,
