@@ -95,7 +95,10 @@ io.on("connection", (socket) => {
         return new Error("db error");
       } else {
         console.log(user);
-        var possibleUser = new UserModel(user);
+        var possibleUser = new UserModel({
+          username: user.username,
+          password: user.password
+        });
         possibleUser.comparePassword(password, function (error, isMatch) {
           if (error != null) {
             console.log("Error when checking password");
