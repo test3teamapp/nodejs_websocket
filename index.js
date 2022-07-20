@@ -92,40 +92,39 @@ io.on("connection", (socket) => {
     UserModel.find({ username: username }).exec((err, user) => {
       if (err) {
         console.log("Error while searching for existing user: " + err);
-        return next(new Error("db error"));
+        return new Error("db error");
       } else {
         var possibleUser = new UserModel(user);
-        possibleUser.comparePassword(password,function (error, isMatch) {
-          if (error) {
+        possibleUser.comparePassword(password, function (error, isMatch) {
+          if (error != null) {
             console.log("Error when checking password");
             return new Error("db error");
           } else {
-            if (isMatch){
+            if (isMatch) {
               console.log("Username/Password ok");
-            }else {
+              // create new session
+              socket.sessionID = randomId();
+              socket.userID = randomId();
+              socket.username = username;
+              // persist session
+              const sess = new SessionModel({
+                username: username,
+                sessionid: socket.sessionID,
+              });
+              sess.save(function (err) {
+                if (err) return handleError(err);
+                // saved!
+              });
+
+              socket.emit("loggedin", socket.handshake.auth.sessionID);
+            } else {
               console.log("Username/Password missmatch");
-              return next(new Error("Username/Password missmatch"));
-            }            
+              return new Error("Username/Password missmatch");
+            }
           }
-        }) 
+        })
       }
     });
-
-    // create new session
-    socket.sessionID = randomId();
-    socket.userID = randomId();
-    socket.username = username;
-    // persist session
-    const sess = new SessionModel({
-      username: username,
-      sessionid: socket.sessionID,
-    });
-    sess.save(function (err) {
-      if (err) return handleError(err);
-      // saved!
-    });
-
-    socket.emit("loggedin", socket.handshake.auth.sessionID);
   });
 
   socket.on("error", (err) => {
