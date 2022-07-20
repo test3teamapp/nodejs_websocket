@@ -88,8 +88,8 @@ io.on("connection", (socket) => {
     }
 
     // TODO CHECK USERNAME
-
-    UserModel.find({ username: username }).exec((err, user) => {
+    // use lean() to have imediate access to the properties of the user object found
+    UserModel.find({ username: username }).lean().exec((err, user) => {
       if (err) {
         console.log("Error while searching for existing user: " + err);
         return new Error("db error");
