@@ -74,7 +74,8 @@
     });
 
     function reqListener() {
-      console.log(this.responseText);
+      //console.log(this.responseText);
+      document.write(this.responseText);
     }
 
     socket.on("loggedin", (sessionid, userid) => {
