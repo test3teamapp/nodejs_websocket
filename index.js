@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
 });
 
 app
-  .route("/private/index.html")
+  .route("/private")
   .get(function (req, res, next) {
     const sessionID = req.query.sessionid;
     const userID = req.query.userid;
@@ -53,7 +53,7 @@ app
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
           console.log("found session");  
-          res.redirect(path.join(__dirname, "/private/index.html")); 
+          res.send(path.join(__dirname, "/private/index.html")); 
           //next();      
         } else {
           console.log("did not find session");
