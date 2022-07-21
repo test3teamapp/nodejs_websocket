@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const path = require('path');
 const http = require("http");
 const server = http.createServer(app);
 const crypto = require("crypto");
@@ -52,8 +53,8 @@ app
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
           console.log("found session");  
-          res.sendFile(__dirname + "/private/index.html"); 
-          next();      
+          res.sendFile(path.join(__dirname, "/private/index.html")); 
+          //next();      
         } else {
           console.log("did not find session");
           res.sendFile(__dirname + "/login.html");
