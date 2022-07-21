@@ -127,7 +127,7 @@ io.on("connection", (socket) => {
                 // saved!
               });
 
-              socket.emit("loggedin", (socket.sessionID, socket.userID));
+              socket.emit("loggedin", socket.sessionID, socket.userID);
             } else {
               console.log("Username/Password missmatch");
               return new Error("Username/Password missmatch");
