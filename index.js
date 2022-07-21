@@ -39,20 +39,19 @@ app.get("/", (req, res) => {
 });
 
 app
-  .route("/private")
+  .route("/private/index.html")
   .get(function (req, res, next) {
     const sessionID = req.query.sessionid;
+    const userID = req.query.userid;
     if (sessionID != null) {
       // find existing session
-      SessionModel.findOne({ sessionid: sessionID }).lean().exec((err, session) => {
+      SessionModel.findOne({ sessionid: sessionID, userid: userID }).lean().exec((err, session) => {
         if (err) {
-          console.log("Error while searching for existing session: " + err);
-          return new Error("db error");
+          console.log("Error while searching for existing session: " + err);          
+          res.sendFile(__dirname + "/login.html");
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
-
-          console.log("found session");
-          res.sendFile(__dirname + "/private/index.html");
+          console.log("found session");          
         } else {
           console.log("did not find session");
           res.sendFile(__dirname + "/login.html");
@@ -120,7 +119,8 @@ io.on("connection", (socket) => {
               // persist session
               const sess = new SessionModel({
                 username: username,
-                sessionid: socket.sessionID,
+                userid:socket.userID,
+                sessionid: socket.sessionID
               });
               sess.save(function (err) {
                 if (err) return handleError(err);

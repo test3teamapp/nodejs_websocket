@@ -80,9 +80,9 @@
         }
       });
 
-      socket.on("loggedin", (sessionid) => {
+      socket.on("loggedin", (sessionid, userid) => {
         const Http = new XMLHttpRequest();
-        const url = "/private?sessionid="+sessionid;
+        const url = "/private/index.html?sessionid="+sessionid+"&userid=" +userid;
         Http.open("GET", url);
         Http.send();
         //window.location.replace("/private");

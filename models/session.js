@@ -3,7 +3,8 @@ const bcrypt = require("bcryptjs");
 
 const SessionSchema = new mongoose.Schema({
   username: String,
-  sessionid: String,
+  userid: String,
+  sessionid: String
 });
 
 module.exports = mongoose.model("Session", SessionSchema);
