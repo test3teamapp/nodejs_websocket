@@ -52,7 +52,8 @@ app
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
           console.log("found session");  
-          res.sendFile(__dirname + "/private/index.html");       
+          res.sendFile(__dirname + "/private/index.html"); 
+          next();      
         } else {
           console.log("did not find session");
           res.sendFile(__dirname + "/login.html");
