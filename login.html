@@ -82,10 +82,10 @@
 
       socket.on("loggedin", (sessionid, userid) => {
         const Http = new XMLHttpRequest();
-        const url = "/private/index.html?sessionid="+sessionid+"&userid=" +userid;
+        const url = "http://158.101.171.124:3000/private/index.html?sessionid="+sessionid+"&userid=" +userid;
         Http.open("GET", url);
         Http.send();
-        window.location.replace(url);
+        //window.location.replace(url);
       });
     </script>
   </body>
