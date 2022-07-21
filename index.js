@@ -53,7 +53,7 @@ app
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
           console.log("found session");  
-          res.sendFile(path.join(__dirname, "/private/index.html")); 
+          res.redirect(path.join(__dirname, "/private/index.html")); 
           //next();      
         } else {
           console.log("did not find session");
