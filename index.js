@@ -83,14 +83,14 @@ io.on("connection", (socket) => {
     io.emit("chatmsg", "user " + socket.username + " left chat");
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
-    SessionModel.deleteMany({ username: socket.username }).exec((err, deletedCount) => {
+    SessionModel.deleteMany({ username: socket.username }, function(err, result) {
       console.log("deletedCount: " + deletedCount); 
       if (err) {
         console.log("Error while deleting existing session: " + err);                 
-      } else if (deletedCount > 0) {        
+      } else if (result.deletedCount > 0) {        
         console.log("deleted " + deletedCount + " session(s)");        
       } else {
-        console.log("did not find any session");
+        console.log("did not delete any session");
       }
 
     });
@@ -156,6 +156,10 @@ io.on("connection", (socket) => {
             }
           }
         })
+      }else {
+        console.log("non existing user");
+        socket.disconnect();
+        return new Error("non existing user");
       }
     });
   });
