@@ -49,21 +49,25 @@ app
       SessionModel.findOne({ sessionid: sessionID, userid: userID }).lean().exec((err, session) => {
         if (err) {
           console.log("Error while searching for existing session: " + err);          
-          res.sendFile(__dirname + "/login.html");
+          //res.sendFile(__dirname + "/login.html");
+          res.send("unathorised access");
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
           console.log("found session");  
-          res.sendFile(path.join(__dirname, "/private/index.html")); 
-          //next();      
+          //res.sendFile(path.join(__dirname, "/private/index.html")); 
+          res.send("ok");
+             
         } else {
           console.log("did not find session");
-          res.sendFile(__dirname + "/login.html");
+          //res.sendFile(__dirname + "/login.html");
+          res.send("unathorised access");
         }
 
       })
     } else {
       console.log("unathorised access");
-      res.sendFile(__dirname + "/login.html");
+     // res.sendFile(__dirname + "/login.html");
+     res.send("unathorised access");
     }
   })
 
@@ -80,6 +84,7 @@ io.on("connection", (socket) => {
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
     SessionModel.deleteMany({ username: socket.username }).exec((err, deletedCount) => {
+      console.log("deletedCount: " + deletedCount); 
       if (err) {
         console.log("Error while deleting existing session: " + err);                 
       } else if (deletedCount > 0) {        
