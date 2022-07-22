@@ -72,23 +72,32 @@ app
   });
 
 io.on("connection", (socket) => {
-  console.log("a socket connected : " + socket.id);
-  io.emit("chatmsg", "user " + socket.id + " joined chat");
+  console.log("a socket connected : " + socket.id);;
 
   socket.on("disconnect", () => {
-    console.log("socket disconnected : " + socket.id);
-    io.emit("chatmsg", "user " + socket.id + " left chat");
+    console.log("socket disconnected : " + socket.id);    
+    io.emit("chatmsg", "user " + socket.username + " left chat");
+    // delete all session records for this user. 
+    //ONLY ONE LOGIN IS POSSIBLE
+    await SessionModel.deleteMany({ username: socket.username }).exec((err, deletedCount) => {
+      if (err) {
+        console.log("Error while deleting existing session: " + err);                 
+      } else if (deletedCount > 0) {        
+        console.log("deleted " + deletedCount + " session(s)");        
+      } else {
+        console.log("did not find any session");
+      }
+
+    });
   });
 
   socket.on("chatmsg", (msg) => {
     console.log("message from : " + socket.id + " = " + msg);
-    io.emit("chatmsg", socket.id + " --> " + msg);
+    io.emit("chatmsg", socket.userID + " --> " + msg);
   });
 
   socket.on("logininfo", (msg) => {
-    console.log("login from : " + socket.id + " = " + msg);
-    //io.emit('chatmsg',  socket.id  + ' --> ' + msg);
-
+    //console.log("login from : " + socket.id + " = " + msg);
     const username = msg.split("/")[0];
     const password = msg.split("/")[1];
     if (!username) {
