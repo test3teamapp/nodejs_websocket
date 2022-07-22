@@ -75,7 +75,7 @@ io.on("connection", (socket) => {
   console.log("a socket connected : " + socket.id);;
 
   socket.on("disconnect", () => {
-    console.log("socket disconnected : " + socket.id);    
+    console.log("socket disconnected : " + socket.username);    
     io.emit("chatmsg", "user " + socket.username + " left chat");
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
@@ -92,8 +92,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chatmsg", (msg) => {
-    console.log("message from : " + socket.id + " = " + msg);
-    io.emit("chatmsg", socket.userID + " --> " + msg);
+    console.log("message from : " + socket.username + " = " + msg);
+    io.emit("chatmsg", socket.username + " --> " + msg);
   });
 
   socket.on("logininfo", (msg) => {
@@ -140,6 +140,7 @@ io.on("connection", (socket) => {
               });
 
               socket.emit("loggedin", socket.sessionID, socket.userID);
+              console.log("Logged in: " + socket.username);
             } else {
               console.log("Username/Password missmatch");
               return new Error("Username/Password missmatch");
