@@ -84,11 +84,11 @@ io.on("connection", (socket) => {
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
     SessionModel.deleteMany({ username: socket.username }, function(err, result) {
-      console.log("deletedCount: " + deletedCount); 
+      console.log("deletedCount: " + result); 
       if (err) {
         console.log("Error while deleting existing session: " + err);                 
       } else if (result.deletedCount > 0) {        
-        console.log("deleted " + deletedCount + " session(s)");        
+        console.log("deleted " + result.deletedCount + " session(s)");        
       } else {
         console.log("did not delete any session");
       }
