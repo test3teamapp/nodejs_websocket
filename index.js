@@ -107,6 +107,7 @@ io.on("connection", (socket) => {
     const password = msg.split("/")[1];
     if (!username) {
       console.log("no username");
+      socket.disconnect();
       return next(new Error("invalid username"));
     }
 
@@ -115,6 +116,7 @@ io.on("connection", (socket) => {
     UserModel.findOne({ username: username }).lean().exec((err, user) => {
       if (err) {
         console.log("Error while searching for existing user: " + err);
+        socket.disconnect();
         return new Error("db error");
       } else if (user != null) {
         //console.log(user.username + " / " + user.password);
@@ -125,6 +127,7 @@ io.on("connection", (socket) => {
         possibleUser.comparePassword(password, function (error, isMatch) {
           if (error != null) {
             console.log("Error when checking password");
+            socket.disconnect();
             return new Error("db error");
           } else {
             if (isMatch) {
@@ -148,6 +151,7 @@ io.on("connection", (socket) => {
               console.log("Logged in: " + socket.username);
             } else {
               console.log("Username/Password missmatch");
+              socket.disconnect();
               return new Error("Username/Password missmatch");
             }
           }
