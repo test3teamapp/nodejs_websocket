@@ -92,13 +92,17 @@
     var password = document.getElementById("psw");
     var input = document.getElementById("input");
 
-    // hide messages and msg input until logged int
-    msginputform.style.display = "none";
-    messages.style.display = "none";
-    input.style.display = "none";
+    // divs
+    var messagesDiv = document.getElementById("messagesDiv");
+    var loginFormDiv = document.getElementById("loginFormDiv");
+    var msginputFormDiv = document.getElementById("msginputFormDiv");
+    
 
+    // hide messages and msg input until logged int
+    messagesDiv.style.display = "none";
+    msginputFormDiv.style.display = "none";
     // show the login form
-    loginform.style.display = "block";
+    loginFormDiv.style.display = "block";
 
 
     loginform.addEventListener("submit", function (e) {
@@ -114,15 +118,13 @@
       //document.write(this.responseText);
 
       // hide the login form
-      loginform.style.display = "none";
+      loginFormDiv.style.display = "none";
       // show messages and msg input until logged int      
-      msginputform.style.display = "block";
-      messages.style.display = "block";
-      input.style.display = "block";      
+      messagesDiv.style.display = "block";
+      msginputFormDiv.style.display = "block";     
     }
 
     socket.on("loggedin", (sessionid, userid) => {
-
       const Http = new XMLHttpRequest();
       Http.addEventListener("load", reqListener);
       const url = "/private?sessionid=" + sessionid + "&userid=" + userid;
