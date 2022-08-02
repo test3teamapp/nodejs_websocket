@@ -171,6 +171,11 @@
         window.scrollTo(0, document.body.scrollHeight);
       });
 
+
+      //see :
+      // https://stackoverflow.com/questions/21434167/how-to-draw-an-image-on-canvas-from-a-byte-array-in-jpeg-or-png-format
+     
+     
       socket.on("streamupdate", function (jpgData) {
         //document.getElementById("livestreamming").src = "data:image/jpg;base64," + jpgData; //yourByteArrayAsBase64;
 
