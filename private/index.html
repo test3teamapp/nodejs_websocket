@@ -1,88 +1,148 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      body {
-        margin: 0;
-        padding-bottom: 3rem;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-      }
 
-      #form {
-        background: rgba(0, 0, 0, 0.15);
-        padding: 0.25rem;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        height: 3rem;
-        box-sizing: border-box;
-        backdrop-filter: blur(10px);
-      }
-      #input {
-        border: none;
-        padding: 0 1rem;
-        flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
-      }
-      #input:focus {
-        outline: none;
-      }
-      #form > button {
-        background: #333;
-        border: none;
-        padding: 0 1rem;
-        margin: 0.25rem;
-        border-radius: 3px;
-        outline: none;
-        color: #fff;
-      }
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    body {
+      margin: 0;
+      padding-bottom: 3rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+    }
 
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messages > li {
-        padding: 0.5rem 1rem;
-      }
-      #messages > li:nth-child(odd) {
-        background: #efefef;
-      }
-    </style>
-  </head>
-  <body>
+    #form {
+      background: rgba(0, 0, 0, 0.15);
+      padding: 0.25rem;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      height: 3rem;
+      box-sizing: border-box;
+      backdrop-filter: blur(10px);
+    }
+
+    #input {
+      border: none;
+      padding: 0 1rem;
+      flex-grow: 1;
+      border-radius: 2rem;
+      margin: 0.25rem;
+    }
+
+    #input:focus {
+      outline: none;
+    }
+
+    #form>button {
+      background: #333;
+      border: none;
+      padding: 0 1rem;
+      margin: 0.25rem;
+      border-radius: 3px;
+      outline: none;
+      color: #fff;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages>li {
+      padding: 0.5rem 1rem;
+    }
+
+    #messages>li:nth-child(odd) {
+      background: #efefef;
+    }
+
+    /* Split the screen in half */
+    .split {
+      height: 80%;
+      width: 50%;
+      position: fixed;
+      z-index: 1;
+      top: 0;
+      overflow-x: hidden;
+      padding-top: 20px;
+    }
+
+    /* Control the left side */
+    .left {
+      left: 0;
+      background-color: rgb(255, 253, 253);
+    }
+
+    /* Control the right side */
+    .right {
+      right: 0;
+      background-color: rgb(14, 13, 13);
+    }
+  </style>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+
+<body>
+  <div id="msgspane" class="split left">
     <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
-      var messages = document.getElementById('messages');
-      var form = document.getElementById("form");
-      var input = document.getElementById("input");
-  
+  </div>
+  <div class="split right">IMAGES</div>
+  <div id="form">
+    <input id="input" autocomplete="off" /><button id="sendbtn">Send</button>
+  </div>
+</body>
+<script>
 
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (input.value) {
-          socket.emit('chatmsg', input.value);
-          input.value = "done";
-        }
-      });
-  
-      socket.on('chatmsg', function (msg) {
-        var item = document.createElement("li");
-        item.textContent = msg;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-     
-    </script>
-  </body>
+  var socket = io();
+  var msgspane = document.getElementById('msgspane');
+  var messages = document.getElementById('messages');
+  var sendbtn = document.getElementById("sendbtn");
+  var input = document.getElementById("input");
+
+  document.addEventListener("DOMContentLoaded", function () {
+    socket.emit('request_session_info');
+  });
+
+  socket.on("session_info", (username, userid, sessionid) => {
+    console.log("session info received");
+    if (username == null || userid == null || sessionid == null) {
+      socket = null;
+      window.close();
+    } else {
+      socket.sessionID = sessionid;
+      socket.userID = userid;
+      socket.username = username;
+    }
+  });
+
+  socket.on("disconnect_user", (username) => {
+    console.log("disconnect user from messages window");
+    if (socket.username == username) {
+      socket = null;
+      window.close();
+    }
+  });
+
+  sendbtn.addEventListener("click", function (e) {
+    console.log("send button clicked");
+    e.preventDefault();
+    if (input.value) {
+      socket.emit('chatmsg', input.value);
+      input.value = "done";
+    }
+  });
+
+  socket.on('chatmsg', function (msg) {
+    var item = document.createElement("li");
+    item.textContent = msg;
+    messages.appendChild(item);
+    msgspane.scrollTo(0, msgspane.scrollHeight);
+  });
+
+</script>
+
 </html>

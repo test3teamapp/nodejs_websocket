@@ -46,26 +46,10 @@
       color: #fff;
     }
 
-    #messages {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    #messages>li {
-      padding: 0.5rem 1rem;
-    }
-
-    #messages>li:nth-child(odd) {
-      background: #efefef;
-    }
   </style>
 </head>
 
 <body>
-  <div id="messagesDiv">
-    <ul id="messages"></ul>
-  </div>
   <div id="loginFormDiv">
     <form id="loginForm" action="">
       <div class="container">
@@ -77,33 +61,12 @@
       </div>
     </form>
   </div>
-  <div id="msginputFormDiv">
-    <form id="msginputForm" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
-  </div>
   <script src="/socket.io/socket.io.js"></script>
   <script>
     var socket = io("http://158.101.171.124:3000/", { autoConnect: false });
     var loginform = document.getElementById("loginForm");
-    var msginputform = document.getElementById("msginputForm");
-    var messages = document.getElementById('messages');
     var username = document.getElementById("uname");
     var password = document.getElementById("psw");
-    var input = document.getElementById("input");
-
-    // divs
-    var messagesDiv = document.getElementById("messagesDiv");
-    var loginFormDiv = document.getElementById("loginFormDiv");
-    var msginputFormDiv = document.getElementById("msginputFormDiv");
-    
-
-    // hide messages and msg input until logged int
-    messagesDiv.style.display = "none";
-    msginputFormDiv.style.display = "none";
-    // show the login form
-    loginFormDiv.style.display = "block";
-
 
     loginform.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -113,40 +76,19 @@
       }
     });
 
-    function reqListener() {
-      console.log(this.responseText);
-      //document.write(this.responseText);
-
-      // hide the login form
-      loginFormDiv.style.display = "none";
-      // show messages and msg input until logged int      
-      messagesDiv.style.display = "block";
-      msginputFormDiv.style.display = "block";     
-    }
-
     socket.on("loggedin", (sessionid, userid) => {
-      const Http = new XMLHttpRequest();
-      Http.addEventListener("load", reqListener);
-      const url = "/private?sessionid=" + sessionid + "&userid=" + userid;
-      Http.open("GET", url);
-      Http.send();
-      //window.location.replace(url);
+      const url = "/private/index.html?sessionid=" + sessionid + "&userid=" + userid;
+      window.open(url);//"_blank"); // new tab so that we do not get disconnected and end the session
     });
 
-    msginputform.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chatmsg', input.value);
-        input.value = "done";
-      }
-    });
+    socket.on("disconnect_user", (username) => {
+    console.log("disconnect user from login window");
+    if (socket.username == username){
+      socket = null;
+      window.close();
+    }
+  });
 
-    socket.on('chatmsg', function (msg) {
-      var item = document.createElement("li");
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
   </script>
 </body>
 

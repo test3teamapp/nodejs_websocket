@@ -34,13 +34,16 @@ if (require.main === module) {
 
 app.set("views", __dirname + "/views");
 
+var singleSocket = null
+
+
 app.get("/", (req, res) => {
   //res.send('<h1>Hello world</h1>');
   res.sendFile(__dirname + "/login.html");
 });
 
 app
-  .route("/private")
+  .route("/private/*")
   .get(function (req, res, next) {
     const sessionID = req.query.sessionid;
     const userID = req.query.userid;
@@ -53,9 +56,9 @@ app
           res.send("unathorised access");
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
-          console.log("found session");  
-          //res.sendFile(path.join(__dirname, "/private/index.html")); 
-          res.send("ok");
+          console.log("found session for accessing '/private/*' route");  
+          res.sendFile(path.join(__dirname, "/private/index.html")); 
+          //io.emit("userinfo", userID );
              
         } else {
           console.log("did not find session");
@@ -65,7 +68,7 @@ app
 
       })
     } else {
-      console.log("unathorised access");
+      console.log("sessionID is null. unathorised access");
      // res.sendFile(__dirname + "/login.html");
      res.send("unathorised access");
     }
@@ -76,15 +79,26 @@ app
   });
 
 io.on("connection", (socket) => {
-  console.log("a socket connected : " + socket.id);;
+
+  if (singleSocket == null){
+    singleSocket = socket
+  }else {
+    socket.sessionID = singleSocket.sessionID;
+    socket.userID = singleSocket.userID;
+    socket.username = singleSocket.username;
+    singleSocket = socket
+  }
+
+  console.log("a socket connected : " + socket.id);;  
 
   socket.on("disconnect", () => {
     console.log("socket disconnected : " + socket.username);    
     io.emit("chatmsg", "user " + socket.username + " left chat");
+    io.emit("disconnect_user", socket.username); // send notice to messages window to close 
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
     SessionModel.deleteMany({ username: socket.username }, function(err, result) {
-      console.log("socket disconnect, delete session result: " + result.n + " " + result.ok + " " + result.deletedCount); 
+      //console.log("socket disconnect, delete session result: " + result.n + " " + result.ok + " " + result.deletedCount); 
       if (err) {
         console.log("Error while deleting existing session: " + err);                 
       } else if (result.deletedCount > 0) {        
@@ -92,9 +106,12 @@ io.on("connection", (socket) => {
       } else {
         console.log("did not delete any session");
       }
-
+  
     });
+    socket = null;
+    singleSocket = null;  
   });
+
 
   socket.on("chatmsg", (msg) => {
     console.log("message from : " + socket.username + " = " + msg);
@@ -163,6 +180,12 @@ io.on("connection", (socket) => {
       }
     });
   });
+
+  socket.on("request_session_info", () => {
+    console.log("session info requested");
+    io.emit("session_info",  socket.username, socket.userID, socket.sessionID);
+  });
+  
 
   socket.on("error", (err) => {
     console.log("ERROR : " + err.message);
