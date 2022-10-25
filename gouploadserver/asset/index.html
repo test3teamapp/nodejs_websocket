@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <script content-type="application/javascript;charset=utf-8" src="../../socket.io/socket.io.js"></script>
+  <body>
+    <form
+      enctype="multipart/form-data"
+      action="http://localhost:8083/uploadmultipart"
+      method="post"
+    >
+      <input type="file" name="myFile" />
+      <input type="submit" value="upload" />
+    </form>
+    <p></p>
+    <input type="file" onchange="upload(this.files)" />
+    <script>
+      var socket = io();
+
+      function upload(files) {
+        socket.emit("filesent", files[0], (status) => {
+          console.log(status);
+        });
+      }
+    </script>
+  </body>
+</html>
