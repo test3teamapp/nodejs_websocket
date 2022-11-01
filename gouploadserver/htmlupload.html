@@ -9,26 +9,10 @@
 </head>
 
 <body>
-  <form enctype="multipart/form-data" action="http://localhost:8083/uploadmultipart" method="post">
+  <form enctype="multipart/form-data" action="http://158.101.171.124:8083/uploadmultipart" method="post">
     <input type="file" name="myFile" />
     <input type="submit" value="upload" />
   </form>
-
-  <script content-type="application/javascript" src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-  <script>
-    var socket = io();
-
-    function upload(files) {
-
-      const buffer = files[0].arrayBuffer();
-      console.log(buffer);
-      socket.emit("filesent", buffer, (status) => {
-          console.log(status);
-        });
-    }
-  </script>
-  <p></p>
-  <input type="file" onchange="upload(this.files)" />
 </body>
 
 </html>
