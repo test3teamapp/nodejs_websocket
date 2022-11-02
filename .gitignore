@@ -1,3 +1,5 @@
 # ignore node_modules
 /node_modules
 *.swo
+pyimagetransfer/__pycache__/TCPReceiver.cpython-36.pyc
+pyimagetransfer/__pycache__/TCPSender.cpython-36.pyc
