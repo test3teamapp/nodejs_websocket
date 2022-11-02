@@ -99,7 +99,7 @@ class TCPSender:
                 #return
 
 
-        cap = cv2.VideoCapture("sample-15s.mp4") # or camera id
+        cap = cv2.VideoCapture("sample_640x360.mp4") # or camera id
         numOfFrames = 0
         start = time.time()
 

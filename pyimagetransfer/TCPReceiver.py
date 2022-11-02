@@ -91,12 +91,16 @@ class TCPReceiver:
         print(f"{os.getpid()} : TCPReceiver : server up and listening")
         self.tcpState.value = int(TCP_STATE.LISTENING)        
         TCPServerSocket.listen()
-        # accepts TCP connection
-        TCPconnection, addr = TCPServerSocket.accept()
-        print(f"{os.getpid()} : TCPReceiver : server accepted connection from {addr}")
-        self.tcpState.value = int(TCP_STATE.CONNECTED)
-
         while(self.startTCP.value):
+            # wait for connection
+            if ( self.tcpState.value != int(TCP_STATE.CONNECTED)):
+                print(f"{os.getpid()} : TCPReceiver : Waiting for connection")
+                # accepts TCP connection
+                TCPconnection, addr = TCPServerSocket.accept()
+                print(f"{os.getpid()} : TCPReceiver : server accepted connection from {addr}")
+                self.tcpState.value = int(TCP_STATE.CONNECTED)
+
+        
             try:
                 lengthAsBytes = self.recvSome(TCPconnection, 4)
                 intLength = int.from_bytes(lengthAsBytes, "little")
@@ -112,6 +116,7 @@ class TCPReceiver:
                         #inp = np.asarray(bytearray(message), dtype=np.uint8)
                         i = cv2.imdecode(np.frombuffer(
                             imageData, dtype=np.uint8), cv2.IMREAD_COLOR)
+                        cv2.imwrite("frames/frame.jpg", i)
                         #i = jpeg.decode(message)
                         #cv2.imshow("preview", i)
                         # cv2.waitKey(0)
@@ -122,10 +127,9 @@ class TCPReceiver:
                 else:
                     # if length of image buffer is 0, check if connection is closed
                     if (self.is_socket_closed(TCPconnection)):
-                        print(f"{os.getpid()} : TCPReceiver : Socket closed")
-                        self.startTCP.value = 0
+                        print(f"{os.getpid()} : TCPReceiver : Socket closed")                        
                         self.tcpState.value = int(TCP_STATE.CLOSED)                        
-                        break
+                        
 
             except BaseException as err:
                 print(f"{os.getpid()} : TCPReceiver : Unexpected error {err}, {type(err)}")

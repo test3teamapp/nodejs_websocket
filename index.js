@@ -51,15 +51,15 @@ app
       // find existing session
       SessionModel.findOne({ sessionid: sessionID, userid: userID }).lean().exec((err, session) => {
         if (err) {
-          console.log("Error while searching for existing session: " + err);          
+          console.log("Error while searching for existing session: " + err);
           //res.sendFile(__dirname + "/login.html");
           res.send("unathorised access");
         } else if (session != null) {
           console.log(session.username + " / " + session.sessionid);
-          console.log("found session for accessing '/private/*' route");  
-          res.sendFile(path.join(__dirname, "/private/index.html")); 
+          console.log("found session for accessing '/private/*' route");
+          res.sendFile(path.join(__dirname, "/private/index.html"));
           //io.emit("userinfo", userID );
-             
+
         } else {
           console.log("did not find session");
           //res.sendFile(__dirname + "/login.html");
@@ -69,9 +69,16 @@ app
       })
     } else {
       console.log("sessionID is null. unathorised access");
-     // res.sendFile(__dirname + "/login.html");
-     res.send("unathorised access");
+      // res.sendFile(__dirname + "/login.html");
+      res.send("unathorised access");
     }
+  })
+
+// for serving the frame received by TCPReceiver
+app
+  .route("/pyimagetransfer")
+  .get(function (req, res, next) {
+    res.sendFile(path.join(__dirname, "/pyimagetransfer/frames/frame.jpg"));
   })
 
   .post(function (req, res, next) {
@@ -80,36 +87,36 @@ app
 
 io.on("connection", (socket) => {
 
-  if (singleSocket == null){
+  if (singleSocket == null) {
     singleSocket = socket
-  }else {
+  } else {
     socket.sessionID = singleSocket.sessionID;
     socket.userID = singleSocket.userID;
     socket.username = singleSocket.username;
     singleSocket = socket
   }
 
-  console.log("a socket connected : " + socket.id);;  
+  console.log("a socket connected : " + socket.id);;
 
   socket.on("disconnect", () => {
-    console.log("socket disconnected : " + socket.username);    
+    console.log("socket disconnected : " + socket.username);
     io.emit("chatmsg", "user " + socket.username + " left chat");
     io.emit("disconnect_user", socket.username); // send notice to messages window to close 
     // delete all session records for this user. 
     //ONLY ONE LOGIN IS POSSIBLE
-    SessionModel.deleteMany({ username: socket.username }, function(err, result) {
+    SessionModel.deleteMany({ username: socket.username }, function (err, result) {
       //console.log("socket disconnect, delete session result: " + result.n + " " + result.ok + " " + result.deletedCount); 
       if (err) {
-        console.log("Error while deleting existing session: " + err);                 
-      } else if (result.deletedCount > 0) {        
-        console.log("deleted " + result.deletedCount + " session(s)");        
+        console.log("Error while deleting existing session: " + err);
+      } else if (result.deletedCount > 0) {
+        console.log("deleted " + result.deletedCount + " session(s)");
       } else {
         console.log("did not delete any session");
       }
-  
+
     });
     socket = null;
-    singleSocket = null;  
+    singleSocket = null;
   });
 
 
@@ -156,7 +163,7 @@ io.on("connection", (socket) => {
               // persist session
               const sess = new SessionModel({
                 username: username,
-                userid:socket.userID,
+                userid: socket.userID,
                 sessionid: socket.sessionID
               });
               sess.save(function (err) {
@@ -173,7 +180,7 @@ io.on("connection", (socket) => {
             }
           }
         })
-      }else {
+      } else {
         console.log("non existing user");
         socket.disconnect();
         return new Error("non existing user");
@@ -183,9 +190,9 @@ io.on("connection", (socket) => {
 
   socket.on("request_session_info", () => {
     console.log("session info requested");
-    io.emit("session_info",  socket.username, socket.userID, socket.sessionID);
+    io.emit("session_info", socket.username, socket.userID, socket.sessionID);
   });
-  
+
 
   socket.on("error", (err) => {
     console.log("ERROR : " + err.message);
