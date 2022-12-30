@@ -94,7 +94,7 @@ func setupRoutes() {
 	http.HandleFunc("/uploadfrontend", uploadHtmlFrontend)
 	http.HandleFunc("/uploaddir", fileServerHandler) //http.FileServer(http.Dir("./tmp")))
 	http.HandleFunc("/servetime", timeHandler)
-	log.Println("Serving at localhost:8083...")
+	log.Println("Upload server at localhost:8083...")
 	log.Fatal(http.ListenAndServe(":8083", nil))
 }
 

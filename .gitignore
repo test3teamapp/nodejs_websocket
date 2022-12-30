@@ -3,3 +3,6 @@
 *.swo
 pyimagetransfer/__pycache__/TCPReceiver.cpython-36.pyc
 pyimagetransfer/__pycache__/TCPSender.cpython-36.pyc
+nohup.out
+gouploadserver/uploadserver
+gouploadserver/tmp/upload-*.png
